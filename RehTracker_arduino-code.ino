@@ -14,10 +14,12 @@
 // analog pins to read from the muscle sensors
 #define EMG_SENSOR_FRONT A0
 
+// general constants
+const float MAX_CONTRACTION = 900;
+const float MUSCLE_THRESHOLD = 350;
+const float GYRO_THRESHOLD = 0.25;
+
 float current_EMG_value = 0;
-float MAX_CONTRACTION = 900;
-float MUSCLE_THRESHOLD = 350;
-float GYRO_THRESHOLD = 0.25;
 float old_gyro_sign = 0;
 bool old_EMG_threshold = true;
 
@@ -33,11 +35,11 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(8, PIN, NEO_GRB + NEO_KHZ800);
 
 // custom colours and colours array
 uint16_t maxIndex = 0;
-uint32_t Red = strip.Color(255, 0, 0);
-uint32_t Yellow = strip.Color(255, 255, 0);
-uint32_t Green = strip.Color(0, 255, 0);
-uint32_t Blue = strip.Color(0, 0, 255);
-uint32_t colours[8] = {Red, Red, Yellow, Yellow, Yellow, Green, Green, Blue};
+const uint32_t Red = strip.Color(255, 0, 0);
+const uint32_t Yellow = strip.Color(255, 255, 0);
+const uint32_t Green = strip.Color(0, 255, 0);
+const uint32_t Blue = strip.Color(0, 0, 255);
+const uint32_t colours[8] = {Red, Red, Yellow, Yellow, Yellow, Green, Green, Blue};
 
 // accelerometer variables
 float ax, ay, az;
@@ -67,7 +69,7 @@ void setup()
   // --- ACCELEROMETER
   if (!IMU.begin())
   {
-    Serial.println("Failed to initialize IMU!");
+    Serial.println("Failed to initialise IMU!");
     while (1)
       ;
   }
@@ -159,7 +161,12 @@ void loop()
 
 void handleRoboticsDemo()
 {
-  handleMuscleExercise();
+  // readFromMuscleSensor();
+
+  // send value
+  exerciseValueCharacteristic.writeValue(random(0, 100));
+
+  delay(150);
 }
 
 void handleMuscleExercise()
@@ -174,16 +181,9 @@ void handleMuscleExercise()
   // send value
   if (old_EMG_threshold == true && (current_EMG_value < MUSCLE_THRESHOLD))
   {
-    if (isRoboticsDemo)
-    {
-      exerciseValueCharacteristic.writeValue(EMG_max_perc / MAX_CONTRACTION * 100);
-    }
-    else
-    {
-      contractionCounter++;
-      exerciseValueCharacteristic.writeValue(contractionCounter);
-    }
 
+    contractionCounter++;
+    exerciseValueCharacteristic.writeValue(contractionCounter);
     EMG_max_perc = 0;
   }
 
