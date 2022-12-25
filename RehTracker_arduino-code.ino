@@ -1,23 +1,25 @@
-// This Arduino sketch manages 3 hardware components, connected to an Arduino Nano 33 BLE:
+// This sketch manages 3 hardware components, connected to an Arduino Nano 33 BLE:
 // - LED strip
 // - EMG muscle sensor
 // - accelerometer (built-in)
-// Updated values are sent via BLE as values of BLE characteristics
+// Updated values are sent via Bluetooth as BLE characteristics values
 
-#include <Wire.h>              // allows to communicate to the LED strip via I2C protocol
 #include <Adafruit_NeoPixel.h> // allows to control the LED strip
-#include <Arduino_LSM9DS1.h>   // allows to read from the built-in accelerometer
+#include <Arduino_LSM9DS1.h>   // allows to use the built-in accelerometer
 #include <ArduinoBLE.h>        // allows to use the built-in BLE/WiFi module
+#include <Wire.h>              // allows to communicate to the LED strip via I2C protocol
 
-// define digital pin for writing to the LED strip
+// define digital pin to write to the LED strip
 #define PIN 6
-// analog pins to read from the muscle sensors
+// define analog pin to read from the muscle sensor
 #define EMG_SENSOR_FRONT A0
 
 // general constants
 const float MAX_CONTRACTION = 900;
 const float MUSCLE_THRESHOLD = 350;
 const float GYRO_THRESHOLD = 0.25;
+const unsigned int LED_DELAY = 50;
+const unsigned int GENERAL_DELAY = 50;
 
 float current_EMG_value = 0;
 float old_gyro_sign = 0;
@@ -26,14 +28,14 @@ bool old_EMG_threshold = true;
 int contractionCounter = 0;
 int rotationCounter = 0;
 
-// maximum values recorded for one exercise repetition in %
+// maximum values recorded for one repetition (%)
 float gyro_max_perc = 0;
 float EMG_max_perc = 0;
 
 // LED strip object declaration
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(8, PIN, NEO_GRB + NEO_KHZ800);
 
-// custom colours and colours array
+// custom colours & colours array
 uint16_t maxIndex = 0;
 const uint32_t Red = strip.Color(255, 0, 0);
 const uint32_t Yellow = strip.Color(255, 255, 0);
@@ -50,8 +52,7 @@ bool isMuscleExercise = true;
 // false: RehTracker behaviour, true: robotics demo
 bool isRoboticsDemo = false;
 
-// BLE objects declaration
-// refs.: https://btprodspecificationrefs.blob.core.windows.net/assigned-values/16-bit%20UUID%20Numbers%20Document.pdf
+// BLE objects declarations
 BLEService exerciseService("0ccc7966-1399-4c67-9ede-9b05dbea1ba2");                                            // create service "Physical Activity Monitor"
 BLEIntCharacteristic exerciseValueCharacteristic("b964a50a-0001-4d37-97eb-971bf5233a98", BLERead | BLENotify); // create characteristic "Physical Activity Monitor Features"
 BLEBoolCharacteristic exerciseTypeCharacteristic("b964a50a-0002-4d37-97eb-971bf5233a98", BLEWrite | BLERead);  // create characteristic "Physical Activity Session Descriptor"
@@ -154,7 +155,7 @@ void loop()
       // --- LED STRIP
       updateMaxIndex();
       setColours();
-      delay(50); // delay to make LED-to-LED transition slower
+      delay(LED_DELAY); // delay to make LED-to-LED transition slower
     }
   }
 }
@@ -166,7 +167,7 @@ void handleRoboticsDemo()
   // send value
   exerciseValueCharacteristic.writeValue(random(0, 100));
 
-  delay(150);
+  delay(GENERAL_DELAY);
 }
 
 void handleMuscleExercise()
