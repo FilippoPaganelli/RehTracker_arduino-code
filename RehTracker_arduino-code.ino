@@ -1,8 +1,8 @@
-// This sketch manages 3 hardware components, connected to an Arduino Nano 33 BLE:
+// This sketch manages 3 hardware components connected to an Arduino Nano 33 BLE:
 // - LED strip
 // - EMG muscle sensor
 // - accelerometer (built-in)
-// Updated values are sent via Bluetooth as BLE characteristics values
+// Updated values are sent via Bluetooth as BLE characteristic values
 
 #include <Adafruit_NeoPixel.h> // allows to control the LED strip
 #include <Arduino_LSM9DS1.h>   // allows to use the built-in accelerometer
@@ -53,10 +53,10 @@ bool isMuscleExercise = true;
 bool isRoboticsDemo = false;
 
 // BLE objects declarations
-BLEService exerciseService("0ccc7966-1399-4c67-9ede-9b05dbea1ba2");                                            // create service "Physical Activity Monitor"
-BLEIntCharacteristic exerciseValueCharacteristic("b964a50a-0001-4d37-97eb-971bf5233a98", BLERead | BLENotify); // create characteristic "Physical Activity Monitor Features"
-BLEBoolCharacteristic exerciseTypeCharacteristic("b964a50a-0002-4d37-97eb-971bf5233a98", BLEWrite | BLERead);  // create characteristic "Physical Activity Session Descriptor"
-BLEBoolCharacteristic isRoboticsDemoCharacteristic("b964a50a-0003-4d37-97eb-971bf5233a98", BLEWrite | BLERead);
+BLEService exerciseService("0ccc7966-1399-4c67-9ede-9b05dbea1ba2");                                              // create service "Physical Activity Monitor"
+BLEIntCharacteristic exerciseValueCharacteristic("b964a50a-0001-4d37-97eb-971bf5233a98", BLERead | BLENotify);   // create characteristic "Physical Activity Monitor Features"
+BLEBoolCharacteristic exerciseTypeCharacteristic("b964a50a-0002-4d37-97eb-971bf5233a98", BLEWrite | BLERead);    // create characteristic "Physical Activity Session Descriptor"
+BLEBoolCharacteristic isRoboticsDemoCharacteristic("b964a50a-0003-4d37-97eb-971bf5233a98", BLEWrite | BLERead);  // create characteristic for toggling the Robotics Demo mode
 
 // --- SETUP
 void setup()
@@ -162,10 +162,11 @@ void loop()
 
 void handleRoboticsDemo()
 {
-  // readFromMuscleSensor();
+  readFromMuscleSensor();
 
   // send value
-  exerciseValueCharacteristic.writeValue(random(0, 100));
+  // exerciseValueCharacteristic.writeValue(random(0, 100)); // test code for MATLAB
+  exerciseValueCharacteristic.writeValue(current_EMG_value / MAX_CONTRACTION * 100);
 
   delay(GENERAL_DELAY);
 }
