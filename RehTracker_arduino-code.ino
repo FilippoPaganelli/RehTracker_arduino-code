@@ -62,7 +62,7 @@ BLEBoolCharacteristic isRoboticsDemoCharacteristic("b964a50a-0003-4d37-97eb-971b
 void setup()
 {
   // --- LED STRIP
-  // initialise all pixels to 'off'
+  // Initialising all pixels to 'off'
   strip.setBrightness(10);
   strip.begin();
   strip.show();
@@ -83,19 +83,19 @@ void setup()
       ;
   }
 
-  // set the local name peripheral advertises
+  // Setting the local name the peripheral device advertises
   BLE.setLocalName("RehTracker - Console");
 
-  // set the service this peripheral advertises
+  // Setting the service this peripheral advertises
   BLE.setAdvertisedService(exerciseService);
 
-  // add the characteristics to the service
+  // adAddingd the characteristics to the service
   exerciseService.addCharacteristic(exerciseValueCharacteristic);
   exerciseService.addCharacteristic(exerciseTypeCharacteristic);
   exerciseService.addCharacteristic(isRoboticsDemoCharacteristic);
   BLE.addService(exerciseService);
 
-  // initialise characteristics and advertise the service
+  // Initialising characteristics and advertising the service
   exerciseValueCharacteristic.writeValue(0);
   exerciseTypeCharacteristic.writeValue(isMuscleExercise);
   isRoboticsDemoCharacteristic.writeValue(0);
@@ -105,7 +105,8 @@ void setup()
 void loop()
 {
   // --- BLUETOOTH
-  BLEDevice central = BLE.central(); // wait for a BLE central to connect
+  // Waiting for a BLE central device to connect
+  BLEDevice central = BLE.central();
 
   if (central)
   {
@@ -113,10 +114,12 @@ void loop()
     {
       bool isRoboticsDemoNewValue = isRoboticsDemoCharacteristic.value();
 
-      // deals with the mode change
+      // Deals with the mode change
       if (isRoboticsDemo != isRoboticsDemoNewValue)
       {
         old_EMG_threshold = false;
+        // Resetting counter value
+        exerciseValueCharacteristic.writeValue(0);
       }
 
       isRoboticsDemo = isRoboticsDemoNewValue;
@@ -130,11 +133,13 @@ void loop()
       {
         bool isMuscleExerciseNewValue = exerciseTypeCharacteristic.value();
 
-        // deals with the exercise type change
+        // Dealing with the exercise type change
         if (isMuscleExercise != isMuscleExerciseNewValue)
         {
           contractionCounter = 0;
           rotationCounter = 0;
+          // Resetting counter value
+          exerciseValueCharacteristic.writeValue(0);
         }
 
         isMuscleExercise = isMuscleExerciseNewValue;
@@ -155,7 +160,8 @@ void loop()
       // --- LED STRIP
       updateMaxIndex();
       setColours();
-      delay(LED_DELAY); // delay to make LED-to-LED transition slower
+      // Delay to make LED-to-LED transition slower
+      delay(LED_DELAY);
     }
   }
 }
@@ -164,8 +170,7 @@ void handleRoboticsDemo()
 {
   readFromMuscleSensor();
 
-  // send value
-  // exerciseValueCharacteristic.writeValue(random(0, 100)); // test code for MATLAB
+  // Send value
   exerciseValueCharacteristic.writeValue(current_EMG_value / MAX_CONTRACTION * 100);
 
   delay(GENERAL_DELAY);
@@ -180,10 +185,9 @@ void handleMuscleExercise()
     EMG_max_perc = current_EMG_value;
   }
 
-  // send value
+  // Send value
   if (old_EMG_threshold == true && (current_EMG_value < MUSCLE_THRESHOLD))
   {
-
     contractionCounter++;
     exerciseValueCharacteristic.writeValue(contractionCounter);
     EMG_max_perc = 0;
@@ -205,7 +209,7 @@ void handleGyroExercise()
     }
   }
 
-  // send value
+  // Send value
   if ((old_gyro_sign != current_gyro_sign) && (gyro_max_perc >= GYRO_THRESHOLD))
   {
     rotationCounter++;
@@ -219,14 +223,16 @@ void handleGyroExercise()
 // Updates 'maxIndex' to the new last LED to light up, according to the contraction intensity
 void updateMaxIndex()
 {
-  maxIndex = (uint16_t)1.0; // keeping the first red LED always on
+  // Keeping the first red LED always on
+  maxIndex = (uint16_t)1.0;
 
   // --- MUSCLE EXERCISE
   if (isMuscleExercise)
   {
-    if (current_EMG_value / MAX_CONTRACTION > (1.0 / 8.0)) // not the first LED
+    // Not the first LED
+    if (current_EMG_value / MAX_CONTRACTION > (1.0 / 8.0))
     {
-      // getting proper index in the interval (1,8]
+      // Getting proper index in the interval (1,8]
       maxIndex = (uint16_t)round(current_EMG_value / MAX_CONTRACTION * 8.0);
     }
   }
@@ -278,5 +284,6 @@ void readFromMuscleSensor()
 // Reads and updates 'ay' with the current value from the built-in accelerometer
 void readFromGyroSensor()
 {
-  IMU.readAcceleration(ax, ay, az); // only 'ay' is the needed value
+  // Only 'ay' is actually used
+  IMU.readAcceleration(ax, ay, az);
 }
