@@ -89,7 +89,7 @@ void setup()
   // Setting the service this peripheral advertises
   BLE.setAdvertisedService(exerciseService);
 
-  // adAddingd the characteristics to the service
+  // Adding the characteristics to the service
   exerciseService.addCharacteristic(exerciseValueCharacteristic);
   exerciseService.addCharacteristic(exerciseTypeCharacteristic);
   exerciseService.addCharacteristic(isRoboticsDemoCharacteristic);
