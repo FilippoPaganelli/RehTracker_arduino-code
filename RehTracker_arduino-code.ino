@@ -163,6 +163,13 @@ void loop()
       // Delay to make LED-to-LED transition slower
       delay(LED_DELAY);
     }
+
+    // Resetting the LED strip when the central device disconnects
+    for (uint16_t i = 0; i < 8; i++)
+    {
+      strip.setPixelColor(i, strip.Color(0, 0, 0));
+    }
+    strip.show();
   }
 }
 
