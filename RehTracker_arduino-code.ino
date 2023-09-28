@@ -118,8 +118,8 @@ void loop()
       if (isRoboticsDemo != isRoboticsDemoNewValue)
       {
         old_EMG_threshold = false;
-        // Resetting counter value
-        exerciseValueCharacteristic.writeValue(0);
+
+        resetExerciseValue();
       }
 
       isRoboticsDemo = isRoboticsDemoNewValue;
@@ -138,8 +138,8 @@ void loop()
         {
           contractionCounter = 0;
           rotationCounter = 0;
-          // Resetting counter value
-          exerciseValueCharacteristic.writeValue(0);
+          
+          resetExerciseValue();
         }
 
         isMuscleExercise = isMuscleExerciseNewValue;
@@ -164,6 +164,12 @@ void loop()
       delay(LED_DELAY);
     }
   }
+}
+
+void resetExerciseValue()
+{
+  // Resetting counter value
+  exerciseValueCharacteristic.writeValue(0);
 }
 
 void handleRoboticsDemo()
