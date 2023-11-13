@@ -103,7 +103,7 @@ void setup()
   isRoboticsDemoCharacteristic.writeValue(0);
   BLE.advertise();
 
-  //Serial.begin(9600);
+  // Serial.begin(9600);
 }
 
 void loop()
@@ -243,6 +243,16 @@ void handleGyroExercise()
   }
 
   old_gyro_sign = current_gyro_sign;
+
+  // Serial.print(1);
+  // Serial.print("\t");
+  // Serial.print(-1);
+  // Serial.print("\t");
+  // Serial.print(GYRO_THRESHOLD);
+  // Serial.print("\t");
+  // Serial.print(-GYRO_THRESHOLD);
+  // Serial.print("\t");
+  // Serial.println(ay);
 }
 
 // Updates 'maxIndex' to the new last LED to light up, according to the contraction intensity
@@ -304,13 +314,14 @@ void readFromMuscleSensor()
 {
   current_EMG_value = analogRead(EMG_SENSOR_FRONT);
   current_EMG_value = (current_EMG_value > MAX_CONTRACTION ? MAX_CONTRACTION : current_EMG_value);
-  //Serial.print(MAX_CONTRACTION);
-  //Serial.print("\t");
-  //Serial.print(0);
-  //Serial.print("\t");
-  //Serial.print(MUSCLE_THRESHOLD);
-  //Serial.print("\t");
-  //Serial.println(current_EMG_value);
+
+  // Serial.print(MAX_CONTRACTION);
+  // Serial.print("\t");
+  // Serial.print(0);
+  // Serial.print("\t");
+  // Serial.print(MUSCLE_THRESHOLD);
+  // Serial.print("\t");
+  // Serial.println(current_EMG_value);
 }
 
 // Reads and updates 'ay' with the current value from the built-in accelerometer
