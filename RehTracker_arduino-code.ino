@@ -16,7 +16,8 @@
 
 // general constants
 const float MAX_CONTRACTION = 900;
-const float MUSCLE_THRESHOLD = 350;
+const float MUSCLE_THRESHOLD = 600;
+const float MIN_THRESHOLD = 200;
 const float GYRO_THRESHOLD = 0.25;
 const unsigned int LED_DELAY = 50;
 const unsigned int GENERAL_DELAY = 50;
@@ -24,6 +25,7 @@ const unsigned int GENERAL_DELAY = 50;
 float current_EMG_value = 0;
 float old_gyro_sign = 0;
 bool old_EMG_threshold = true;
+bool reached_minimum = true;
 
 int contractionCounter = 0;
 int rotationCounter = 0;
@@ -100,6 +102,8 @@ void setup()
   exerciseTypeCharacteristic.writeValue(isMuscleExercise);
   isRoboticsDemoCharacteristic.writeValue(0);
   BLE.advertise();
+
+  //Serial.begin(9600);
 }
 
 void loop()
@@ -199,11 +203,19 @@ void handleMuscleExercise()
   }
 
   // Send value
-  if (old_EMG_threshold == true && (current_EMG_value < MUSCLE_THRESHOLD))
+  if (old_EMG_threshold)
   {
-    contractionCounter++;
-    exerciseValueCharacteristic.writeValue(contractionCounter);
-    EMG_max_perc = 0;
+    reached_minimum = (current_EMG_value <= MIN_THRESHOLD);
+
+    if(reached_minimum)
+    {
+      contractionCounter++;
+      exerciseValueCharacteristic.writeValue(contractionCounter);
+      EMG_max_perc = 0;
+      old_EMG_threshold = false;
+    }
+
+    return;
   }
 
   old_EMG_threshold = (current_EMG_value >= MUSCLE_THRESHOLD);
@@ -292,6 +304,13 @@ void readFromMuscleSensor()
 {
   current_EMG_value = analogRead(EMG_SENSOR_FRONT);
   current_EMG_value = (current_EMG_value > MAX_CONTRACTION ? MAX_CONTRACTION : current_EMG_value);
+  //Serial.print(MAX_CONTRACTION);
+  //Serial.print("\t");
+  //Serial.print(0);
+  //Serial.print("\t");
+  //Serial.print(MUSCLE_THRESHOLD);
+  //Serial.print("\t");
+  //Serial.println(current_EMG_value);
 }
 
 // Reads and updates 'ay' with the current value from the built-in accelerometer
